@@ -31,11 +31,42 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # New step to retrieve dependency graph snapshots
-      - name: Get dependency graph snapshots
-        uses: actions/github-script@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }} # Use GitHub token for authentication
-          script: |
-            const response = await github.repos.getDependencyGraph({ owner: 'yousseflaamim', repo: 'examnation' });
-            console.log(response.data);
+      # Inject the set-secret job here
+        set-secret:
+         name: Create or update environment secret
+        runs-on: ubuntu-latest
+        steps:
+          - name: Install tweetsodium
+            run: |
+              npm install tweetsodium
+          - uses: Simran-B/github-script@master # has updated dependencies (for testing only!)
+            id: update-secret
+            with:
+              github-token: ${{ secrets.GITHUB_TOKEN }} # Personal access token required
+              # (also for retrieving the env public key, despite what the documentation claims)
+              script: |
+                const sodium = require('tweetsodium')
+
+                const envName = "prod"
+                const secretName = "MY_SECRET"
+                const value = "New secret value"
+
+                const pkey = await github.rest.actions.getEnvironmentPublicKey({
+                  repository_id: context.payload.repository.id,
+                  environment_name: envName,
+                })
+
+                const messageBytes = Buffer.from(value)
+                const keyBytes = Buffer.from(pkey.data.key, "base64")
+                const encryptedBytes = sodium.seal(messageBytes, keyBytes)
+                const encrypted = Buffer.from(encryptedBytes).toString("base64")
+
+                const result = await github.rest.actions.createOrUpdateEnvironmentSecret({
+                  repository_id: context.payload.repository.id,
+                  environment_name: envName,
+                  secret_name: secretName,
+                  encrypted_value: encrypted,
+                  key_id: pkey.data.key_id,
+                })
+                console.log(result.status)
+
