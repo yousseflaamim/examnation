@@ -121,6 +121,7 @@
                 </configuration>
             </plugin>
         </plugins>
+        <finalName>rent-car</finalName>
     </build>
 
 </project>
