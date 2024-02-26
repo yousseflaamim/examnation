@@ -1,11 +1,4 @@
-# Use an official OpenJDK runtime as a parent image
-FROM openjdk:12-jre-slim
+FROM openjdk:8
 EXPOSE 8082
-ADD target/rent-car.jar rent-car.jar
-# Set the working directory in the container
-
-
-
-
-# Specify the command to run your application
+ADD target/rent-car.jar  rent-car.jar
 ENTRYPOINT ["java", "-jar", "rent-car.jar"]
