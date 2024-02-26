@@ -30,7 +30,7 @@ jobs:
     - name: Build with Maven
       run: mvn clean
       env:
-        GITHUB_TOKEN: ${{ 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}}
+        GITHUB_TOKEN: ${{secrets.workflow}}
 
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
