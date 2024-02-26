@@ -16,7 +16,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -30,13 +29,13 @@ jobs:
       - name: Build with Maven
         run: mvn test
         env:
-          GITHUB_TOKEN: ${{ secrets.workflow  }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # New step to retrieve dependency graph snapshots
       - name: Get dependency graph snapshots
         uses: actions/github-script@v4
         with:
-          github-token: ${{ secrets.workflow  }} # Use GitHub token for authentication
+          token: ${{ secrets.GITHUB_TOKEN }} # Use GitHub token for authentication
           script: |
             const response = await github.repos.getDependencyGraph({ owner: 'yousseflaamim', repo: 'examnation' });
             console.log(response.data);
